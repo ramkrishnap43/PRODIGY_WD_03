@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Board from "./Board";
 import GameOver from "./GameOver";
+import Gamestate from "./Gamestate";
 
 const PLAYER_X = "X";
 const PLAYER_O = "O";
@@ -21,7 +22,7 @@ const winningCombinations = [
   { combo: [2, 4, 6], strikeClass: "strike-diagonal-2" },
 ];
 
-function checkWinner(box, setStrikeClass) {
+function checkWinner(box, setStrikeClass,setGameState) {
   for (const { combo, strikeClass } of winningCombinations) {
     const boxValue1 = box[combo[0]];
     const boxValue2 = box[combo[1]];
@@ -33,8 +34,21 @@ function checkWinner(box, setStrikeClass) {
       boxValue1 === boxValue3
     ) {
       setStrikeClass(strikeClass);
+      if(boxValue1 === PLAYER_X){
+        setGameState(Gamestate.playerXWins)
+      }
+      else{
+        setGameState(Gamestate.playerOWins)
+      }
     }
   }
+
+  const fillAllTheBox = box.every((item) => item != null);
+  if(fillAllTheBox){
+    setGameState(Gamestate.draw)
+  }
+
+
 }
 
 const TicTacToe = () => {
@@ -43,6 +57,8 @@ const TicTacToe = () => {
   const [playerTurn, setPlayerTurn] = useState(PLAYER_X);
 
   const [strikeClass, setStrikeClass] = useState("");
+
+  const [gameState , setGameState] = useState(Gamestate.inProgress)
 
   const handleClick = (index) => {
     // console.log(index)
@@ -63,7 +79,7 @@ const TicTacToe = () => {
   };
 
   useEffect(() => {
-    checkWinner(box, setStrikeClass);
+    checkWinner(box, setStrikeClass,setGameState);
   }, [box]);
 
   return (
@@ -76,7 +92,7 @@ const TicTacToe = () => {
         onClick={handleClick}
       />
 
-      <GameOver />
+      <GameOver gameState={gameState} />
     </div>
   );
 };
